@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:football_news/widgets/left_drawer.dart';
-// 2. IMPORT HALAMAN NEWS_CARD.DART (SESUAI INSTRUKSI)
 import 'package:football_news/widgets/news_card.dart';
 
 class MyHomePage extends StatelessWidget {

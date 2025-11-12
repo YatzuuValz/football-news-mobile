@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 // 3. IMPORT NEWSLIST_FORM.DART (SESUAI INSTRUKSI)
-import 'package:football_news/screen/newslist_form.dart';
+import 'package:football_news/screen/news_entry_list.dart';
 
+import 'package:football_news/screen/newslist_form.dart';
+import 'package:football_news/screen/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
 // 1. CLASS ITEMHOMEPAGE PINDAH KE SINI
 class ItemHomepage {
@@ -21,6 +25,7 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Material(
       // Menentukan warna latar belakang dari tema aplikasi.
       color: Theme.of(context).colorScheme.secondary,
@@ -28,21 +33,54 @@ class ItemCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         // Aksi ketika kartu ditekan.
-        onTap: () {
+        onTap: () async {
           // TAMBAHKAN LOGIKA NAVIGASI
           if (item.name == "Add News") {
             Navigator.push(
               context,
+              MaterialPageRoute(builder: (context) => const NewsFormPage()),
+            );
+          } else if (item.name == "See Football News") {
+            Navigator.push(
+              context,
               MaterialPageRoute(
-                builder: (context) => const NewsFormPage(),
+                builder: (context) => const NewsEntryListPage(),
               ),
             );
+          } else if (item.name == "Logout") {
+            // TODO: Replace the URL with your app's URL and don't forget to add a trailing slash (/)!
+            // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
+            // If you using chrome,  use URL http://localhost:8000
+
+            final response = await request.logout(
+              "http://localhost:8000/auth/logout/",
+            );
+            String message = response["message"];
+            if (context.mounted) {
+              if (response['status']) {
+                String uname = response["username"];
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("$message See you again, $uname.")),
+                );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              } else {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(message)));
+              }
+            }
           } else {
             // Tampilkan SnackBar untuk tombol lainnya
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(
-                  content: Text("Kamu telah menekan tombol ${item.name}!")));
+              ..showSnackBar(
+                SnackBar(
+                  content: Text("Kamu telah menekan tombol ${item.name}!"),
+                ),
+              );
           }
         },
         // Container untuk menyimpan Icon dan Text
